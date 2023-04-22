@@ -1,8 +1,12 @@
 package com.walletconnect.controller;
 
+import com.walletconnect.entity.Merchant;
+import com.walletconnect.entity.Team;
 import com.walletconnect.entity.User;
 import com.walletconnect.entity.impl.AuthModel;
 import com.walletconnect.entity.impl.CreateUserModel;
+import com.walletconnect.repository.MerchantRepository;
+import com.walletconnect.repository.TeamRepository;
 import com.walletconnect.repository.UserRepository;
 import com.walletconnect.security.CustomUserDetailsService;
 import com.walletconnect.service.impl.UserServiceImpl;
@@ -33,6 +37,12 @@ public class AuthController {
     private UserRepository userRepository;
 
     @Autowired
+    private MerchantRepository merchantRepository;
+
+    @Autowired
+    private TeamRepository teamRepository;
+
+    @Autowired
     private AuthenticationManager authenticationManager;
 
     @Autowired
@@ -42,19 +52,39 @@ public class AuthController {
 
     @PostMapping("/signin")
     public ResponseEntity<Object> login(@RequestBody AuthModel authModel) throws Exception {
-        Map<Object, Object> user_data = new HashMap<>();
+        Map<Object, Object> merchant_data = new HashMap<>();
         Map<Object, Object> data = new HashMap<>();
+
+        Map<Object, Object> userData = new HashMap<>();
         authenticate(authModel.getEmail(), authModel.getPassword());
 
         final UserDetails userDetails = userDetailsService.loadUserByUsername(authModel.getEmail());
         User user = userRepository.findUserByEmail(userDetails.getUsername());
+        if(user.getIsMerchant()){
+            Merchant merchant = merchantRepository.findMerchantByUserId(user.getId());
+
+            Team team = teamRepository.findTeamByUserIdAndMerchantId(user.getId(), merchant.getId());
+            merchant_data.put("merchantName", merchant.getMerchantName());
+            merchant_data.put("address", merchant.getAddress());
+            merchant_data.put("businessNo", merchant.getBusinessNo());
+            merchant_data.put("businessEmail", merchant.getBusinessEmail());
+            merchant_data.put("businessRegNo", merchant.getBusinessRegNo());
+            merchant_data.put("businessRegCert", merchant.getBusinessRegCert());
+            merchant_data.put("secretKey", merchant.getSecretKey());
+            merchant_data.put("isActive", merchant.getIsActive());
+
+            data.put("merchantData", merchant_data);
+            userData.put("isMerchant", user.getIsMerchant());
+            userData.put("firstName", team.getFirstName());
+            userData.put("lastName", team.getLastName());
+        }
 
         final String token = jwtTokenUtil.generateToken(userDetails);
-        user_data.put("id", user.getId());
-        user_data.put("createdAt", user.getCreatedAt());
-
         data.put("access", token);
-        data.put("user", user_data);
+        userData.put("id", user.getId());
+        userData.put("email", user.getEmail());
+        userData.put("CreateAt", user.getCreatedAt());
+        data.put("user", userData);
 
         return new ResponseEntity<Object>(data, HttpStatus.OK);
     }

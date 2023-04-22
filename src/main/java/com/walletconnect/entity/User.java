@@ -1,5 +1,6 @@
 package com.walletconnect.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -22,6 +23,7 @@ public class User {
     private String email;
 
     @Column(nullable = false, unique = true)
+    @JsonIgnore
     private String password;
 
     @Column(name = "is_merchant")
