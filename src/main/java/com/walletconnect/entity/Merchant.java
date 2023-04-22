@@ -66,4 +66,14 @@ public class Merchant {
     @UpdateTimestamp
     private Timestamp updatedAt;
 
+    @OneToOne(mappedBy = "merchant", optional = false)
+    private Wallet wallet;
+
+    public Wallet getWallet() {
+        return wallet;
+    }
+
+    public void setWallet(Wallet wallet) {
+        this.wallet = wallet;
+    }
 }
