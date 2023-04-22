@@ -21,7 +21,6 @@ public class Wallet {
     private Double balance = 0.00;
 
     @OneToOne(fetch = FetchType.EAGER, optional = false)
-    @Column(name = "merchant_id")
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Merchant merchant;
 }

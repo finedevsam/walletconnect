@@ -8,7 +8,7 @@ import java.util.Map;
 
 @Service
 public class Response {
-    public ResponseEntity<Map> successResponse(String message, String data, HttpStatus status){
+    public ResponseEntity<Object> successResponse(String message, String data, HttpStatus status){
         JSONObject json = new JSONObject();
         json.put("code", status.value());
         json.put("status", "successful");
@@ -17,7 +17,7 @@ public class Response {
         return new ResponseEntity<>(json, status);
     }
 
-    public ResponseEntity<Map> failResponse(String message, String data, HttpStatus status){
+    public ResponseEntity<Object> failResponse(String message, String data, HttpStatus status){
         JSONObject json = new JSONObject();
         json.put("code", status.value());
         json.put("status", "fail");

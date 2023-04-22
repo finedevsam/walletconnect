@@ -2,9 +2,10 @@ package com.walletconnect.controller;
 
 import com.walletconnect.entity.User;
 import com.walletconnect.entity.impl.AuthModel;
+import com.walletconnect.entity.impl.CreateUserModel;
 import com.walletconnect.repository.UserRepository;
 import com.walletconnect.security.CustomUserDetailsService;
-import com.walletconnect.service.UserService;
+import com.walletconnect.service.impl.UserServiceImpl;
 import com.walletconnect.util.JwtTokenUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,15 +17,17 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
 import java.util.Map;
 
 @RestController
+@RequestMapping("/user")
 public class AuthController {
     @Autowired
-    private UserService userService;
+    private UserServiceImpl userService;
 
     @Autowired
     private UserRepository userRepository;
@@ -37,10 +40,10 @@ public class AuthController {
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
 
-    @PostMapping("/login")
-    public ResponseEntity<Map> login(@RequestBody AuthModel authModel) throws Exception {
-        Map user_data = new HashMap<>();
-        Map data = new HashMap<>();
+    @PostMapping("/signin")
+    public ResponseEntity<Object> login(@RequestBody AuthModel authModel) throws Exception {
+        Map<Object, Object> user_data = new HashMap<>();
+        Map<Object, Object> data = new HashMap<>();
         authenticate(authModel.getEmail(), authModel.getPassword());
 
         final UserDetails userDetails = userDetailsService.loadUserByUsername(authModel.getEmail());
@@ -53,7 +56,12 @@ public class AuthController {
         data.put("access", token);
         data.put("user", user_data);
 
-        return new ResponseEntity<Map>(data, HttpStatus.OK);
+        return new ResponseEntity<Object>(data, HttpStatus.OK);
+    }
+
+    @PostMapping("/signup")
+    public ResponseEntity<Object> createMerchant(@RequestBody CreateUserModel userModel){
+        return userService.createMerchant(userModel);
     }
 
     private void authenticate(String email, String password) throws Exception {
@@ -67,5 +75,7 @@ public class AuthController {
             throw new Exception("Bad Credentials");
         }
     }
+
+
 }
 

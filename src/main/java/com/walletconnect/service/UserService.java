@@ -4,12 +4,14 @@ import com.walletconnect.entity.User;
 import com.walletconnect.entity.impl.CreateUserModel;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 
+import java.util.Map;
 import java.util.Optional;
 
 public interface UserService {
 
-    User createUser(CreateUserModel user);
+    ResponseEntity<Object> createMerchant(CreateUserModel user);
 
     User getLoggedInUser();
 
