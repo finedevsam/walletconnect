@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/user")
@@ -58,22 +59,22 @@ public class AuthController {
         final UserDetails userDetails = userDetailsService.loadUserByUsername(authModel.getEmail());
         User user = userRepository.findUserByEmail(userDetails.getUsername());
         if(user.getIsMerchant()){
-            Merchant merchant = merchantRepository.findMerchantByUserId(user.getId());
+            Optional<Team> team = teamRepository.findTeamByUserId(user.getId());
+            Optional <Merchant> merchant = merchantRepository.findMerchantById(team.get().getMerchant().getId());
+            merchant_data.put("merchantName", merchant.get().getMerchantName());
+            merchant_data.put("address", merchant.get().getAddress());
+            merchant_data.put("businessNo", merchant.get().getBusinessNo());
+            merchant_data.put("businessEmail", merchant.get().getBusinessEmail());
+            merchant_data.put("businessRegNo", merchant.get().getBusinessRegNo());
+            merchant_data.put("businessRegCert", merchant.get().getBusinessRegCert());
+            merchant_data.put("secretKey", merchant.get().getSecretKey());
+            merchant_data.put("isActive", merchant.get().getIsActive());
 
-            Team team = teamRepository.findTeamByUserIdAndMerchantId(user.getId(), merchant.getId());
-            merchant_data.put("merchantName", merchant.getMerchantName());
-            merchant_data.put("address", merchant.getAddress());
-            merchant_data.put("businessNo", merchant.getBusinessNo());
-            merchant_data.put("businessEmail", merchant.getBusinessEmail());
-            merchant_data.put("businessRegNo", merchant.getBusinessRegNo());
-            merchant_data.put("businessRegCert", merchant.getBusinessRegCert());
-            merchant_data.put("secretKey", merchant.getSecretKey());
-            merchant_data.put("isActive", merchant.getIsActive());
 
             data.put("merchantData", merchant_data);
             userData.put("isMerchant", user.getIsMerchant());
-            userData.put("firstName", team.getFirstName());
-            userData.put("lastName", team.getLastName());
+            userData.put("firstName", team.get().getFirstName());
+            userData.put("lastName", team.get().getLastName());
         }
 
         final String token = jwtTokenUtil.generateToken(userDetails);

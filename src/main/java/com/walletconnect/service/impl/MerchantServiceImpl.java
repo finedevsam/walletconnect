@@ -44,8 +44,9 @@ public class MerchantServiceImpl implements MerchantService {
     public ResponseEntity<Object> getAllTeamMember() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Optional<User> user = userRepository.findByEmail(authentication.getName());
-        Merchant merchant = merchantRepository.findMerchantByUserId(user.get().getId());
-        List<Team> teams = teamRepository.findAllByMerchantId(merchant.getId());
+        Optional<Team> team = teamRepository.findTeamByUserId(user.get().getId());
+        Optional<Merchant> merchant = merchantRepository.findMerchantById(team.get().getMerchant().getId());
+        List<Team> teams = teamRepository.findAllByMerchantId(merchant.get().getId());
         return new ResponseEntity<Object>(teams, HttpStatus.OK);
     }
 
@@ -56,7 +57,12 @@ public class MerchantServiceImpl implements MerchantService {
         Merchant merchant = merchantRepository.findMerchantByUserId(user.get().getId());
         Optional<Team> teams = teamRepository.findTeamByUserId(user.get().getId());
         if(! teams.get().getIsAdmin()){
-            return response.failResponse("Pernission denied", user.get().getId(), HttpStatus.BAD_REQUEST);
+            return response.failResponse("Permission denied", user.get().getId(), HttpStatus.BAD_REQUEST);
+        }
+        Optional<User> checkUser = userRepository.findByEmail(teamMember.getEmail());
+
+        if(checkUser.isPresent()){
+            return response.failResponse("Email has been Used", user.get().getId(), HttpStatus.CONFLICT);
         }
         User newUser = new User();
         Team newTeam = new Team();
