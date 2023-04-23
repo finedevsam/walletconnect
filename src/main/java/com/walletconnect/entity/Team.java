@@ -1,5 +1,6 @@
 package com.walletconnect.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -39,6 +40,7 @@ public class Team {
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "merchant_id")
     @OnDelete(action = OnDeleteAction.CASCADE)
+    @JsonIgnore
     private Merchant merchant;
 
     @OneToOne(fetch = FetchType.EAGER, optional = false)
