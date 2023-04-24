@@ -10,11 +10,13 @@ import java.util.Optional;
 
 @Repository
 public interface TeamRepository extends JpaRepository<Team, String> {
-    Team findTeamByUserIdAndMerchantId(String userId, String merchantId);
+//    Team findTeamByUserIdAndMerchantId(String userId, String merchantId);
 
     Team findTeamByMerchantId(String id);
 
     Optional<Team> findTeamByUserId(String userId);
+
+    Optional<Team> findTeamByUserIdAndMerchantId(String userId, String merchantId);
 
     List<Team> findAllByMerchantId(String merchantId);
 

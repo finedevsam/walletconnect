@@ -9,4 +9,6 @@ public interface MerchantService {
     ResponseEntity<Object> getAllTeamMember();
 
     ResponseEntity<Object> addTeamMember(AddTeamMember teamMember);
+
+    ResponseEntity<Object> removeTeamMember(String userId);
 }

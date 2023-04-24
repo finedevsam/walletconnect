@@ -17,10 +17,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class MerchantServiceImpl implements MerchantService {
@@ -79,6 +76,31 @@ public class MerchantServiceImpl implements MerchantService {
         newTeam.setLastName(teamMember.getLastName());
         teamRepository.save(newTeam);
         return response.successResponse("team added successfully", newUser.getId(), HttpStatus.OK);
+    }
+
+    @Override
+    public ResponseEntity<Object> removeTeamMember(String userId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Optional<User> loggedInUser = userRepository.findByEmail(authentication.getName());
+        Merchant merchant = merchantRepository.findMerchantByUserId(loggedInUser.get().getId());
+        Optional<Team> teams = teamRepository.findTeamByUserIdAndMerchantId(userId, merchant.getId());
+//        if(teams.get().getIsAdmin()){
+//            System.out.println("Here 1");
+//            System.out.println(teams.get().getFirstName());
+//            return response.failResponse("Permission denied", userId, HttpStatus.BAD_REQUEST);
+//        }
+        if(Objects.equals(loggedInUser.get().getId(), userId) && teams.get().getIsAdmin()){
+            return response.failResponse("Permission denied", "You can't delete yourself as owner", HttpStatus.BAD_REQUEST);
+        }
+        if(Objects.equals(loggedInUser.get().getId(), userId)){
+            return response.failResponse("Permission denied", "You can't delete yourself", HttpStatus.BAD_REQUEST);
+        }
+        if(Objects.equals(merchant.getId(), teams.get().getMerchant().getId())) {
+            userRepository.deleteById(userId);
+            return response.successResponse("Team member removed", userId, HttpStatus.OK);
+        }
+        System.out.println("Here 2");
+        return response.failResponse("Permission denied", userId, HttpStatus.BAD_REQUEST);
     }
 
 }

@@ -22,4 +22,9 @@ public class MerchantController {
     public ResponseEntity<Object> addTeamMember(@RequestBody AddTeamMember addTeamMember){
         return merchantService.addTeamMember(addTeamMember);
     }
+
+    @DeleteMapping("/team/{userId}")
+    public ResponseEntity<Object> removeTeamMember(@PathVariable(name = "userId") String userId){
+        return merchantService.removeTeamMember(userId);
+    }
 }
