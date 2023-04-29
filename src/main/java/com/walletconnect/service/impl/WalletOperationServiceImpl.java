@@ -43,7 +43,7 @@ public class WalletOperationServiceImpl implements WalletOperationService {
             return response.failResponse("Receiver not found", "", HttpStatus.BAD_REQUEST);
         }
         if(sender.get().getIsMerchant()){
-            return response.failResponse("Permission denied", "Mechant not allowed to send fund out", HttpStatus.BAD_REQUEST);
+            return response.failResponse("Permission denied", "Merchant not allowed to send fund out", HttpStatus.BAD_REQUEST);
         }
 
         if (sender.get().getIsUser() && receiver.get().getIsUser()){
