@@ -25,7 +25,12 @@ public class WebSecurityConfig {
         http
                 .csrf().disable()
                 .authorizeHttpRequests()
-                .requestMatchers("/user/signin", "/user/signup").permitAll()
+                .requestMatchers(
+                        "/user/signin",
+                        "/user/signup",
+                        "/user/reset-password",
+                        "/user/reset-password/confirm"
+                ).permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);

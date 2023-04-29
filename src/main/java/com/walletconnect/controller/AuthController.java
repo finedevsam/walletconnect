@@ -3,8 +3,7 @@ package com.walletconnect.controller;
 import com.walletconnect.entity.Merchant;
 import com.walletconnect.entity.Team;
 import com.walletconnect.entity.User;
-import com.walletconnect.entity.impl.AuthModel;
-import com.walletconnect.entity.impl.CreateUserModel;
+import com.walletconnect.entity.impl.*;
 import com.walletconnect.repository.MerchantRepository;
 import com.walletconnect.repository.TeamRepository;
 import com.walletconnect.repository.UserRepository;
@@ -91,6 +90,22 @@ public class AuthController {
     public ResponseEntity<Object> createMerchant(@RequestBody CreateUserModel userModel){
         return userService.createMerchant(userModel);
     }
+
+    @PostMapping("/changepass")
+    public ResponseEntity<Object> changePassword(@RequestBody ChangePassword changePassword){
+        return userService.changePassword(changePassword);
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<Object> resetPassword(@RequestBody ResetPassword resetPassword){
+        return userService.resetPassword(resetPassword);
+    }
+
+    @PostMapping("/reset-password/confirm")
+    public ResponseEntity<Object> resetPasswordConfirm(@RequestParam String token, @RequestBody ResetPasswordConfirm resetPassword){
+        return userService.resetPasswordConfirm(token, resetPassword);
+    }
+
 
     private void authenticate(String email, String password) throws Exception {
         try {
