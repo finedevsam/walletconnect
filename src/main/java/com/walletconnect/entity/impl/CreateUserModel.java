@@ -19,4 +19,7 @@ public class CreateUserModel {
     @NotNull(message = "last name is required")
     private String lastName;
 
+    @NotNull(message = "Please enter account type")
+    private String accountType;
+
 }

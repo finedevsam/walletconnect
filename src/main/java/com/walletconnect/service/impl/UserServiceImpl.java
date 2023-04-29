@@ -50,35 +50,68 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private PasswordResetRepository passwordResetRepository;
 
+    @Autowired
+    private UserWalletRepository userWalletRepository;
+
+    @Autowired
+    private UserProfileRepository userProfileRepository;
+
     @Override
-    public ResponseEntity<Object> createMerchant(CreateUserModel user) {
+    public ResponseEntity<Object> userRegistration(CreateUserModel user) {
         if(userRepository.existsByEmail(user.getEmail())){
             return response.failResponse("email already used", "", HttpStatus.CONFLICT);
         }
-        User newUser = new User();
-        Merchant merchant = new Merchant();
-        Team team = new Team();
-        Wallet wallet = new Wallet();
+        System.out.println(user.getAccountType());
 
-        newUser.setEmail(user.getEmail());
-        newUser.setPassword(passwordEncoder.encode(user.getPassword()));
-        newUser.setIsMerchant(true);
-        userRepository.save(newUser);
+        if(Objects.equals(user.getAccountType(), "personal")){
+            UserProfile newUserProfile = new UserProfile();
+            UserWallet newUserWallet = new UserWallet();
+            User newUser = new User();
 
-        merchant.setUser(newUser);
-        merchant.setSecretKey(String.format("sk_%s",generateData.apikey(32)));
-        merchantRepository.save(merchant);
+            newUser.setEmail(user.getEmail());
+            newUser.setPassword(passwordEncoder.encode(user.getPassword()));
+            newUser.setIsUser(true);
+            userRepository.save(newUser);
 
-        team.setFirstName(user.getFirstName());
-        team.setLastName(user.getLastName());
-        team.setIsAdmin(true);
-        team.setMerchant(merchant);
-        team.setUser(newUser);
-        teamRepository.save(team);
 
-        wallet.setMerchant(merchant);
-        walletRepository.save(wallet);
-        return response.successResponse("registration successful", newUser.getId(), HttpStatus.OK);
+            newUserProfile.setFirstName(user.getFirstName());
+            newUserProfile.setLastName(user.getLastName());
+            newUserProfile.setUser(newUser);
+            userProfileRepository.save(newUserProfile);
+
+            newUserWallet.setUser(newUser);
+            userWalletRepository.save(newUserWallet);
+            return response.successResponse("registration successful", newUser.getId(), HttpStatus.OK);
+
+        }else if(Objects.equals(user.getAccountType(), "merchant")) {
+            Merchant merchant = new Merchant();
+            Team team = new Team();
+            Wallet wallet = new Wallet();
+            User newUser = new User();
+
+            newUser.setEmail(user.getEmail());
+            newUser.setPassword(passwordEncoder.encode(user.getPassword()));
+            newUser.setIsMerchant(true);
+            userRepository.save(newUser);
+
+            merchant.setUser(newUser);
+            merchant.setSecretKey(String.format("sk_%s", generateData.apikey(32)));
+            merchantRepository.save(merchant);
+
+            team.setFirstName(user.getFirstName());
+            team.setLastName(user.getLastName());
+            team.setIsAdmin(true);
+            team.setMerchant(merchant);
+            team.setUser(newUser);
+            teamRepository.save(team);
+
+            wallet.setMerchant(merchant);
+            walletRepository.save(wallet);
+            return response.successResponse("registration successful", newUser.getId(), HttpStatus.OK);
+        }
+        else {
+            return response.failResponse("please select correct account type from `personal` or  `merchant`", "", HttpStatus.BAD_REQUEST);
+        }
     }
 
     @Override

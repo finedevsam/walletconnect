@@ -14,7 +14,7 @@ import java.util.Optional;
 
 public interface UserService {
 
-    ResponseEntity<Object> createMerchant(CreateUserModel user);
+    ResponseEntity<Object> userRegistration(CreateUserModel user);
 
     User getLoggedInUser();
 

@@ -3,9 +3,11 @@ package com.walletconnect.controller;
 import com.walletconnect.entity.Merchant;
 import com.walletconnect.entity.Team;
 import com.walletconnect.entity.User;
+import com.walletconnect.entity.UserProfile;
 import com.walletconnect.entity.impl.*;
 import com.walletconnect.repository.MerchantRepository;
 import com.walletconnect.repository.TeamRepository;
+import com.walletconnect.repository.UserProfileRepository;
 import com.walletconnect.repository.UserRepository;
 import com.walletconnect.security.CustomUserDetailsService;
 import com.walletconnect.service.impl.UserServiceImpl;
@@ -44,6 +46,9 @@ public class AuthController {
 
     @Autowired
     private CustomUserDetailsService userDetailsService;
+
+    @Autowired
+    private UserProfileRepository userProfileRepository;
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
 
@@ -76,6 +81,13 @@ public class AuthController {
             userData.put("lastName", team.get().getLastName());
         }
 
+        if(user.getIsUser()){
+            Optional<UserProfile> userProfile = userProfileRepository.findUserProfileByUserId(user.getId());
+            userData.put("firstName", userProfile.get().getFirstName());
+            userData.put("lastName", userProfile.get().getLastName());
+            userData.put("mobile", userProfile.get().getMobile());
+        }
+
         final String token = jwtTokenUtil.generateToken(userDetails);
         data.put("access", token);
         userData.put("id", user.getId());
@@ -87,8 +99,8 @@ public class AuthController {
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<Object> createMerchant(@RequestBody CreateUserModel userModel){
-        return userService.createMerchant(userModel);
+    public ResponseEntity<Object> userRegistration(@RequestBody CreateUserModel userModel){
+        return userService.userRegistration(userModel);
     }
 
     @PostMapping("/changepass")
