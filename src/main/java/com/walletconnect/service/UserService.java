@@ -1,10 +1,7 @@
 package com.walletconnect.service;
 
 import com.walletconnect.entity.User;
-import com.walletconnect.entity.impl.ChangePassword;
-import com.walletconnect.entity.impl.CreateUserModel;
-import com.walletconnect.entity.impl.ResetPassword;
-import com.walletconnect.entity.impl.ResetPasswordConfirm;
+import com.walletconnect.entity.impl.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -27,5 +24,7 @@ public interface UserService {
     ResponseEntity<Object> resetPassword(ResetPassword resetPassword);
 
     ResponseEntity<Object> resetPasswordConfirm(String token, ResetPasswordConfirm passwordConfirm);
+
+    ResponseEntity<?> createPaymentTag(PaymentTag paymentTag);
 }
 

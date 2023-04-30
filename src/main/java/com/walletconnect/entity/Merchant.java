@@ -56,6 +56,12 @@ public class Merchant {
     @Column(name = "is_activate")
     private Boolean isActivate = false;
 
+    @Column(name = "payment_tag")
+    private String paymentTag;
+
+    @Column(name = "has_payment_tag")
+    private Boolean hasPaymentTag = false;
+
     @OneToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "user_id")
     @OnDelete(action = OnDeleteAction.CASCADE)
@@ -71,12 +77,4 @@ public class Merchant {
 
     @OneToOne(mappedBy = "merchant", optional = false)
     private Wallet wallet;
-
-    public Wallet getWallet() {
-        return wallet;
-    }
-
-    public void setWallet(Wallet wallet) {
-        this.wallet = wallet;
-    }
 }

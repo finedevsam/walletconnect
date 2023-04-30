@@ -118,6 +118,11 @@ public class AuthController {
         return userService.resetPasswordConfirm(token, resetPassword);
     }
 
+    @PostMapping("/tag")
+    public ResponseEntity<?> createPaymentTag(@RequestBody PaymentTag paymentTag){
+        return userService.createPaymentTag(paymentTag);
+    }
+
 
     private void authenticate(String email, String password) throws Exception {
         try {

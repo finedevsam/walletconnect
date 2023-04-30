@@ -1,10 +1,7 @@
 package com.walletconnect.service.impl;
 
 import com.walletconnect.entity.*;
-import com.walletconnect.entity.impl.ChangePassword;
-import com.walletconnect.entity.impl.CreateUserModel;
-import com.walletconnect.entity.impl.ResetPassword;
-import com.walletconnect.entity.impl.ResetPasswordConfirm;
+import com.walletconnect.entity.impl.*;
 import com.walletconnect.exception.ResourceNotFoundException;
 import com.walletconnect.repository.*;
 import com.walletconnect.service.UserService;
@@ -176,6 +173,53 @@ public class UserServiceImpl implements UserService {
             userRepository.save(user);
             passwordResetRepository.delete(resetToken);
             return response.successResponse("Password reset successful", user.getId(), HttpStatus.OK);
+        }
+    }
+
+    @Override
+    public ResponseEntity<?> createPaymentTag(PaymentTag paymentTag) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        User user = userRepository.findUserByEmail(authentication.getName());
+        Optional<UserProfile> existUserTag = userProfileRepository.findUserProfileByPaymentTag(paymentTag.getTag());
+        Optional<Merchant> existMerchantTag = merchantRepository.findByPaymentTag(paymentTag.getTag());
+
+        if(user.getIsUser()){
+            UserProfile userProfile = userProfileRepository.findByUserId(user.getId());
+
+            if(userProfile.getHasPaymentTag()){
+                return response.failResponse("Payment tag has already been created", "", HttpStatus.BAD_REQUEST);
+            }
+            if(existUserTag.isPresent()){
+                return response.failResponse("Payment tag has been taken", "", HttpStatus.BAD_REQUEST);
+            }
+
+            if (existMerchantTag.isPresent()){
+                return response.failResponse("Payment tag has been taken", "", HttpStatus.BAD_REQUEST);
+            }
+            userProfile.setPaymentTag(paymentTag.getTag());
+            userProfile.setHasPaymentTag(true);
+            userProfileRepository.save(userProfile);
+            return response.successResponse("Payment tag created", "", HttpStatus.OK);
+        }else if (user.getIsMerchant() && user.getIsMerchantOwner()){
+            Merchant merchant = merchantRepository.findMerchantByUserId(user.getId());
+
+            if(merchant.getHasPaymentTag()){
+                return response.failResponse("Payment tag has already been created", "", HttpStatus.BAD_REQUEST);
+            }
+            if (existUserTag.isPresent()){
+                return response.failResponse("Payment tag has been taken", "", HttpStatus.BAD_REQUEST);
+            }
+
+            if (existMerchantTag.isPresent()){
+                return response.failResponse("Payment tag has been taken", "", HttpStatus.BAD_REQUEST);
+            }
+            merchant.setPaymentTag(paymentTag.getTag());
+            merchant.setHasPaymentTag(true);
+            merchantRepository.save(merchant);
+            return response.successResponse("Payment tag created", "", HttpStatus.OK);
+        }else {
+            return response.failResponse("Permission Denied", "", HttpStatus.BAD_REQUEST);
         }
     }
 }

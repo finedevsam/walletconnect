@@ -29,6 +29,12 @@ public class UserProfile {
     @Column(name = "last_name")
     private String lastName;
 
+    @Column(name = "payment_tag")
+    private String paymentTag;
+
+    @Column(name = "has_payment_tag")
+    private Boolean hasPaymentTag = false;
+
     private String mobile;
 
     @OneToOne(fetch = FetchType.EAGER, optional = false)

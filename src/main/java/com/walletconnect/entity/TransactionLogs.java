@@ -1,5 +1,6 @@
 package com.walletconnect.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -24,9 +25,11 @@ public class TransactionLogs {
     private String receiver;
 
     @Column(name = "sender_id")
+    @JsonIgnore
     private String senderId;
 
     @Column(name = "receiver_id")
+    @JsonIgnore
     private String receiverId;
 
     @Column(name = "transaction_ref")

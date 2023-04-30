@@ -7,12 +7,14 @@ import com.walletconnect.service.WalletOperationService;
 import com.walletconnect.util.GenerateData;
 import com.walletconnect.util.Response;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -145,5 +147,13 @@ public class WalletOperationServiceImpl implements WalletOperationService {
         }else {
             return response.failResponse("Permission denied", "", HttpStatus.BAD_REQUEST);
         }
+    }
+
+    @Override
+    public List<TransactionLogs> myTransactionHistory(Pageable pageable) {
+        // Logged in user
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Optional<User> user = userRepository.findByEmail(authentication.getName());
+        return logsRepository.findBySenderIdOrReceiverId(user.get().getId(), user.get().getId(), pageable).toList();
     }
 }
