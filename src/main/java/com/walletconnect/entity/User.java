@@ -29,6 +29,9 @@ public class User {
     @Column(name = "is_merchant")
     private Boolean isMerchant = false;
 
+    @Column(name = "is_merchant_owner")
+    private Boolean isMerchantOwner = false;
+
     @Column(name = "is_user")
     private Boolean isUser = false;
 

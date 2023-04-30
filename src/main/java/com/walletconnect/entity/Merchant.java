@@ -53,6 +53,9 @@ public class Merchant {
     @Column(name = "is_active")
     private Boolean isActive = false;
 
+    @Column(name = "is_activate")
+    private Boolean isActivate = false;
+
     @OneToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "user_id")
     @OnDelete(action = OnDeleteAction.CASCADE)

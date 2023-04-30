@@ -7,4 +7,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface WalletRepository extends JpaRepository<Wallet, String> {
 
+    Wallet findByMerchantId(String id);
+
 }

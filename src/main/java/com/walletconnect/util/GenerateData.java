@@ -11,13 +11,24 @@ public class GenerateData {
         String AlphaNumericString = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
                 + "0123456789"
                 + "abcdefghijklmnopqrstuvxyz";
+        return getString(n, AlphaNumericString);
+    }
+
+    public String referenceNumber(int n)
+    {
+        String AlphaNumericString = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                + "0123456789";
+        return getString(n, AlphaNumericString);
+    }
+
+    private String getString(int n, String alphaNumericString) {
         StringBuilder sb = new StringBuilder(n);
 
         for (int i = 0; i < n; i++) {
             int index
-                    = (int)(AlphaNumericString.length()
+                    = (int)(alphaNumericString.length()
                     * Math.random());
-            sb.append(AlphaNumericString
+            sb.append(alphaNumericString
                     .charAt(index));
         }
         return sb.toString();

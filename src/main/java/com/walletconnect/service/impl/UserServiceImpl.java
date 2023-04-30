@@ -92,9 +92,11 @@ public class UserServiceImpl implements UserService {
             newUser.setEmail(user.getEmail());
             newUser.setPassword(passwordEncoder.encode(user.getPassword()));
             newUser.setIsMerchant(true);
+            newUser.setIsMerchantOwner(true);
             userRepository.save(newUser);
 
             merchant.setUser(newUser);
+            merchant.setBusinessEmail(user.getEmail());
             merchant.setSecretKey(String.format("sk_%s", generateData.apikey(32)));
             merchantRepository.save(merchant);
 

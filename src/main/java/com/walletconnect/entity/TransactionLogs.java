@@ -23,6 +23,12 @@ public class TransactionLogs {
 
     private String receiver;
 
+    @Column(name = "sender_id")
+    private String senderId;
+
+    @Column(name = "receiver_id")
+    private String receiverId;
+
     @Column(name = "transaction_ref")
     private String transactionRef;
 
