@@ -7,7 +7,7 @@ import lombok.Data;
 public class WalletTransfer {
 
     @NotNull(message = "Please enter receiver email")
-    private String receiverEmail;
+    private String paymentTag;
 
     @NotNull(message = "Please enter amount")
     private String amount;

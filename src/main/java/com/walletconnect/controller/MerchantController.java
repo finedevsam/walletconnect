@@ -1,13 +1,14 @@
 package com.walletconnect.controller;
 
 import com.walletconnect.entity.impl.AddTeamMember;
+import com.walletconnect.entity.impl.UpdateMerchantAccount;
 import com.walletconnect.service.impl.MerchantServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/merchant/")
+@RequestMapping("/merchant")
 public class MerchantController {
 
     @Autowired
@@ -26,5 +27,10 @@ public class MerchantController {
     @DeleteMapping("/team/{userId}")
     public ResponseEntity<Object> removeTeamMember(@PathVariable(name = "userId") String userId){
         return merchantService.removeTeamMember(userId);
+    }
+
+    @PutMapping()
+    public ResponseEntity<?> updateBusinessInfo(@RequestBody UpdateMerchantAccount merchantAccount){
+        return merchantService.updateBusiness(merchantAccount);
     }
 }

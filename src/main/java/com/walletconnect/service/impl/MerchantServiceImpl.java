@@ -4,6 +4,7 @@ import com.walletconnect.entity.Merchant;
 import com.walletconnect.entity.Team;
 import com.walletconnect.entity.User;
 import com.walletconnect.entity.impl.AddTeamMember;
+import com.walletconnect.entity.impl.UpdateMerchantAccount;
 import com.walletconnect.repository.MerchantRepository;
 import com.walletconnect.repository.TeamRepository;
 import com.walletconnect.repository.UserRepository;
@@ -101,6 +102,30 @@ public class MerchantServiceImpl implements MerchantService {
         }
         System.out.println("Here 2");
         return response.failResponse("Permission denied", userId, HttpStatus.BAD_REQUEST);
+    }
+
+    @Override
+    public ResponseEntity<?> updateBusiness(UpdateMerchantAccount merchantAccount) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Optional<User> loggedInUser = userRepository.findByEmail(authentication.getName());
+        if(Objects.equals(loggedInUser.get().getIsMerchant(), true)){
+            if(Objects.equals(loggedInUser.get().getIsMerchantOwner(), true)){
+                Merchant merchant = merchantRepository.findMerchantByUserId(loggedInUser.get().getId());
+                merchant.setAddress(merchantAccount.getBusinessAddress());
+                merchant.setBusinessNo(merchantAccount.getBusinessPhoneNo());
+                merchant.setBusinessRegCert(merchantAccount.getBusinessRegNo());
+                merchant.setBusinessRegNo(merchantAccount.getBusinessRegNo());
+                merchant.setContactPerson(merchantAccount.getContactPerson());
+                merchant.setContactPersonNo(merchantAccount.getContactPersonMobileNo());
+                merchant.setMerchantName(merchantAccount.getBusinessName());
+                merchant.setIsActivate(true);
+                merchantRepository.save(merchant);
+                return response.successResponse("Mechant information updated", merchant.getId(), HttpStatus.OK);
+            }else {
+                return response.failResponse("Permission Denied", "", HttpStatus.BAD_REQUEST);
+            }
+        }
+        return response.failResponse("Permission Denied", "", HttpStatus.BAD_REQUEST);
     }
 
 }
