@@ -21,6 +21,8 @@ public class UserWallet {
 
     private Double balance = 0.00;
 
+    private String pin;
+
     @OneToOne(fetch = FetchType.EAGER, optional = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonIgnore

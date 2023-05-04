@@ -1,5 +1,6 @@
 package com.walletconnect.controller;
 
+import com.walletconnect.entity.impl.PinModel;
 import com.walletconnect.entity.impl.WalletTransfer;
 import com.walletconnect.service.impl.WalletOperationServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,5 +30,10 @@ public class WalletController {
     @GetMapping("/balance")
     public ResponseEntity<?> getBalance(){
         return walletOperationService.walletBalance();
+    }
+
+    @PostMapping("/set-pin")
+    public ResponseEntity<?> setTransactionPin(@RequestBody PinModel pinModel){
+        return walletOperationService.setTransactionPin(pinModel);
     }
 }

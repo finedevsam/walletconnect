@@ -11,4 +11,7 @@ public class WalletTransfer {
 
     @NotNull(message = "Please enter amount")
     private String amount;
+
+    @NotNull(message = "Please enter pin")
+    private String pin;
 }

@@ -1,6 +1,7 @@
 package com.walletconnect.service.impl;
 
 import com.walletconnect.entity.*;
+import com.walletconnect.entity.impl.PinModel;
 import com.walletconnect.entity.impl.WalletTransfer;
 import com.walletconnect.repository.*;
 import com.walletconnect.service.WalletOperationService;
@@ -12,6 +13,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -46,9 +49,14 @@ public class WalletOperationServiceImpl implements WalletOperationService {
     @Autowired
     private TeamRepository teamRepository;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
 
     @Override
     public ResponseEntity<Object> walletTransfer(WalletTransfer transfer) {
+        boolean isAmountNumeric = transfer.getAmount().matches("\\d+(\\.\\d+)?");
+        boolean isPinNumeric = transfer.getPin().matches("\\d+");
 
         // Logged in user
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -73,13 +81,26 @@ public class WalletOperationServiceImpl implements WalletOperationService {
             return response.failResponse("User not found", "", HttpStatus.BAD_REQUEST);
         }
 
+        if(!isAmountNumeric){
+            return response.failResponse("Invalid amount format", "something went wrong", HttpStatus.BAD_REQUEST);
+        }
+
+        if(transfer.getPin().length() != 4){
+            return response.failResponse("Pin must be 4 value", "something went wrong", HttpStatus.BAD_REQUEST);
+        }
+        if(!isPinNumeric){
+            return response.failResponse("Pin must must be numeric", "something went wrong", HttpStatus.BAD_REQUEST);
+        }
+
         if (sendUser.get().getIsUser()){
             Optional<UserProfile> senderProfile = userProfileRepository.findUserProfileByUserId(sendUser.get().getId());
             if(Objects.equals(senderProfile.get().getPaymentTag(), transfer.getPaymentTag())){
                 return response.failResponse("You can't send money to yourself", "", HttpStatus.BAD_REQUEST);
             }
             UserWallet senderWallet = walletRepository.findByUserId(sendUser.get().getId());
-
+            if(!passwordEncoder.matches(transfer.getPin(), senderWallet.getPin())){
+                return response.failResponse("Invalid transaction pin", "something went wrong", HttpStatus.BAD_REQUEST);
+            }
             Double senderWalletBalance = senderWallet.getBalance();
 
             if(Double.parseDouble(transfer.getAmount()) > senderWalletBalance){
@@ -184,5 +205,27 @@ public class WalletOperationServiceImpl implements WalletOperationService {
             data.put("balance", wallet.get().getBalance());
             return new ResponseEntity<>(data, HttpStatus.OK);
         }
+    }
+
+    @Override
+    public ResponseEntity<?> setTransactionPin(PinModel pinModel) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Optional<User> user = userRepository.findByEmail(authentication.getName());
+
+        boolean isNumeric = pinModel.getPin().matches("\\d+");
+        if(pinModel.getPin().length() != 4){
+            return response.failResponse("Pin must be 4 value", "something went wrong", HttpStatus.BAD_REQUEST);
+        }
+        if(!isNumeric){
+            return response.failResponse("Pin must must be numeric", "something went wrong", HttpStatus.BAD_REQUEST);
+        }
+
+        if(user.get().getIsMerchant()){
+            return response.failResponse("Permission denied", "something went wrong", HttpStatus.BAD_REQUEST);
+        }
+        UserWallet userWallet = walletRepository.findByUserId(user.get().getId());
+        userWallet.setPin(passwordEncoder.encode(pinModel.getPin()));
+        walletRepository.save(userWallet);
+        return response.successResponse("Transaction Pin change successfully", userWallet.getUser().getId(), HttpStatus.OK);
     }
 }
