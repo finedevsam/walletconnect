@@ -10,4 +10,6 @@ import java.util.List;
 public interface WalletOperationService {
     ResponseEntity<Object> walletTransfer(WalletTransfer transfer);
     List<TransactionLogs> myTransactionHistory(Pageable pageable);
+
+    ResponseEntity<Object> walletBalance();
 }

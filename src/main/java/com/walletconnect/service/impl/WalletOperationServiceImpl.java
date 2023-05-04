@@ -14,9 +14,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class WalletOperationServiceImpl implements WalletOperationService {
@@ -45,6 +43,9 @@ public class WalletOperationServiceImpl implements WalletOperationService {
     @Autowired
     private WalletRepository merchantwalletRepository;
 
+    @Autowired
+    private TeamRepository teamRepository;
+
 
     @Override
     public ResponseEntity<Object> walletTransfer(WalletTransfer transfer) {
@@ -71,13 +72,12 @@ public class WalletOperationServiceImpl implements WalletOperationService {
         }else {
             return response.failResponse("User not found", "", HttpStatus.BAD_REQUEST);
         }
-        System.out.println(check);
 
         if (sendUser.get().getIsUser()){
-            if(Objects.equals(userData, transfer.getPaymentTag()) && Objects.equals(check, "1")){
+            Optional<UserProfile> senderProfile = userProfileRepository.findUserProfileByUserId(sendUser.get().getId());
+            if(Objects.equals(senderProfile.get().getPaymentTag(), transfer.getPaymentTag())){
                 return response.failResponse("You can't send money to yourself", "", HttpStatus.BAD_REQUEST);
             }
-            System.out.println(userData);
             UserWallet senderWallet = walletRepository.findByUserId(sendUser.get().getId());
 
             Double senderWalletBalance = senderWallet.getBalance();
@@ -88,10 +88,10 @@ public class WalletOperationServiceImpl implements WalletOperationService {
 
             if(Objects.equals(check, "1")){
                 Optional<UserProfile> receiver = userProfileRepository.findUserProfileByPaymentTag(transfer.getPaymentTag());
-                UserWallet recWallet = walletRepository.findByUserId(receiver.get().getId());
+                UserWallet recWallet = walletRepository.findByUserId(receiver.get().getUser().getId());
 
                 Optional<UserProfile> senderUserProfile = userProfileRepository.findUserProfileByUserId(sendUser.get().getId());
-                Optional<UserProfile> recUserProfile = userProfileRepository.findUserProfileByUserId(receiver.get().getId());
+                Optional<UserProfile> recUserProfile = userProfileRepository.findUserProfileByUserId(receiver.get().getUser().getId());
 
                 Double recWalletBalance = recWallet.getBalance();
 
@@ -164,5 +164,25 @@ public class WalletOperationServiceImpl implements WalletOperationService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Optional<User> user = userRepository.findByEmail(authentication.getName());
         return logsRepository.findBySenderIdOrReceiverId(user.get().getId(), user.get().getId(), pageable).toList();
+    }
+
+    @Override
+    public ResponseEntity<Object> walletBalance() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Optional<User> user = userRepository.findByEmail(authentication.getName());
+
+        Map<String, Object> data = new HashMap<>();
+        if(Objects.equals(user.get().getIsMerchant(), true)){
+            Optional<Team> team = teamRepository.findTeamByUserId(user.get().getId());
+            Optional<Merchant> merchant = merchantRepository.findMerchantById(team.get().getMerchant().getId());
+            Optional<Wallet> wallet = Optional.ofNullable(merchantwalletRepository.findByMerchantId(merchant.get().getId()));
+            data.put("balance", wallet.get().getBalance());
+            return new ResponseEntity<>(data, HttpStatus.OK);
+        }
+        else {
+            Optional<UserWallet> wallet = Optional.ofNullable(walletRepository.findByUserId(user.get().getId()));
+            data.put("balance", wallet.get().getBalance());
+            return new ResponseEntity<>(data, HttpStatus.OK);
+        }
     }
 }

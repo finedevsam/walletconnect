@@ -25,4 +25,9 @@ public class WalletController {
     public List<?> myLogs(Pageable pageable){
         return walletOperationService.myTransactionHistory(pageable);
     }
+
+    @GetMapping("/balance")
+    public ResponseEntity<?> getBalance(){
+        return walletOperationService.walletBalance();
+    }
 }
