@@ -23,6 +23,11 @@ public class UserWallet {
 
     private String pin;
 
+    @Column(name = "is_nfc")
+    private Boolean isNfc = false;
+
+    private String nfc;
+
     @OneToOne(fetch = FetchType.EAGER, optional = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonIgnore

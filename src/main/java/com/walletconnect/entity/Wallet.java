@@ -21,6 +21,8 @@ public class Wallet {
 
     private Double balance = 0.00;
 
+    private String nfc;
+
     @OneToOne(fetch = FetchType.EAGER, optional = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonIgnore
