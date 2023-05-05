@@ -1,5 +1,6 @@
 package com.walletconnect.security;
 
+import com.walletconnect.exception.JwtTokenExpiredException;
 import com.walletconnect.exception.ResourceNotFoundException;
 import com.walletconnect.util.JwtTokenUtil;
 import com.walletconnect.util.Response;
@@ -45,7 +46,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             } catch (IllegalArgumentException e) {
                 throw new ResourceNotFoundException("Unable to get JWT token");
             } catch (ExpiredJwtException e) {
-                throw new ResourceNotFoundException("Jwt token has expired");
+                throw new JwtTokenExpiredException("Jwt token has expired");
             }
 
         }

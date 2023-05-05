@@ -1,5 +1,6 @@
 package com.walletconnect.controller;
 
+import com.walletconnect.entity.impl.NfcModel;
 import com.walletconnect.entity.impl.PinModel;
 import com.walletconnect.entity.impl.WalletTransfer;
 import com.walletconnect.service.impl.WalletOperationServiceImpl;
@@ -35,5 +36,10 @@ public class WalletController {
     @PostMapping("/set-pin")
     public ResponseEntity<?> setTransactionPin(@RequestBody PinModel pinModel){
         return walletOperationService.setTransactionPin(pinModel);
+    }
+
+    @PostMapping("/pay")
+    public ResponseEntity<?> pay(@RequestBody NfcModel nfcModel){
+        return walletOperationService.nfcPayment(nfcModel);
     }
 }

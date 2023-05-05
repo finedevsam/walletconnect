@@ -1,6 +1,7 @@
 package com.walletconnect.service;
 
 import com.walletconnect.entity.TransactionLogs;
+import com.walletconnect.entity.impl.NfcModel;
 import com.walletconnect.entity.impl.PinModel;
 import com.walletconnect.entity.impl.WalletTransfer;
 import org.springframework.data.domain.Pageable;
@@ -15,4 +16,6 @@ public interface WalletOperationService {
     ResponseEntity<Object> walletBalance();
 
     ResponseEntity<?> setTransactionPin(PinModel pinModel);
+
+    ResponseEntity<?> nfcPayment(NfcModel nfcModel);
 }

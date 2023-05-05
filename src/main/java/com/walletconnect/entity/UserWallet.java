@@ -26,7 +26,8 @@ public class UserWallet {
     @Column(name = "is_nfc")
     private Boolean isNfc = false;
 
-    private String nfc;
+    @Column(name = "nfc_token")
+    private String nfcToken;
 
     @OneToOne(fetch = FetchType.EAGER, optional = false)
     @OnDelete(action = OnDeleteAction.CASCADE)

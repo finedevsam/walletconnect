@@ -1,6 +1,7 @@
 package com.walletconnect.service.impl;
 
 import com.walletconnect.entity.*;
+import com.walletconnect.entity.impl.NfcModel;
 import com.walletconnect.entity.impl.PinModel;
 import com.walletconnect.entity.impl.WalletTransfer;
 import com.walletconnect.repository.*;
@@ -227,5 +228,50 @@ public class WalletOperationServiceImpl implements WalletOperationService {
         userWallet.setPin(passwordEncoder.encode(pinModel.getPin()));
         walletRepository.save(userWallet);
         return response.successResponse("Transaction Pin change successfully", userWallet.getUser().getId(), HttpStatus.OK);
+    }
+
+    @Override
+    public ResponseEntity<?> nfcPayment(NfcModel nfcModel) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Optional<User> user = userRepository.findByEmail(authentication.getName());
+        Optional<UserWallet> userWallet = walletRepository.findUserWalletByNfcToken(nfcModel.getNfcToken());
+        Optional<UserProfile> senderProfile = userProfileRepository.findUserProfileByUserId(userWallet.get().getUser().getId());
+        if(userWallet.get().getIsNfc()){
+            if(!user.get().getIsMerchant()){
+                return response.failResponse("Permission denied", "Contact payment can only be to merchant", HttpStatus.BAD_REQUEST);
+            }
+            if(Double.parseDouble(nfcModel.getAmount()) > userWallet.get().getBalance()){
+                return response.failResponse("Insufficient balance", "low wallet balance", HttpStatus.BAD_REQUEST);
+            }
+            UserWallet userWallet1 = walletRepository.findByUserId(userWallet.get().getUser().getId());
+            Optional<Team> team = teamRepository.findTeamByUserId(user.get().getId());
+            Wallet wallet = merchantwalletRepository.findByMerchantId(team.get().getMerchant().getId());
+            Optional<Merchant> merchant = merchantRepository.findMerchantById(team.get().getMerchant().getId());
+
+            // Debit Operation
+            double debitBal = userWallet.get().getBalance() - Double.parseDouble(nfcModel.getAmount());
+            userWallet1.setBalance(debitBal);
+            walletRepository.save(userWallet1);
+
+            // Credit Operation
+            double credBal = wallet.getBalance() + Double.parseDouble(nfcModel.getAmount());
+
+            wallet.setBalance(credBal);
+            merchantwalletRepository.save(wallet);
+
+            TransactionLogs newLogs = new TransactionLogs();
+            newLogs.setAmount(Double.valueOf(nfcModel.getAmount()));
+            newLogs.setSenderId(senderProfile.get().getId());
+            newLogs.setReceiverId(team.get().getMerchant().getId());
+            newLogs.setSender(String.format("%s %s", senderProfile.get().getLastName(), senderProfile.get().getFirstName()));
+            newLogs.setReceiver(String.format("%s", merchant.get().getMerchantName()));
+            newLogs.setTransactionRef(generateData.referenceNumber(12));
+            newLogs.setTransactionType("NFT");
+            logsRepository.save(newLogs);
+
+            return response.successResponse("Transaction successful", "Paid", HttpStatus.OK);
+        }else {
+            return response.failResponse("Permission denied", "Contact payment Admin", HttpStatus.BAD_REQUEST);
+        }
     }
 }
